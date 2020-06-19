@@ -27,12 +27,14 @@ export class AppointmentMainComponent implements OnInit {
 
   success: boolean = false;
 
+  userBookingId: number;
+
   constructor(private httpService: HttpServiceService,
     private generateTimeListService: GenerateTimeListService,
     private fb: FormBuilder) {
-    this.minDate = new Date().getHours() >= this.MAX_HOUR ? addDays(new Date(), 1) : new Date();
+    this.minDate = new Date().getHours() >= this.MAX_HOUR ? addDays(new Date(), 1) : new Date(); // For datepicker. Switch to next day after 5pm
     this.currentDate = new Date();
-    this.maxDate = addWeeks(new Date(), 3);
+    this.maxDate = addWeeks(new Date(), 3); // For datepicker
   }
 
   ngOnInit(): void {
@@ -42,17 +44,25 @@ export class AppointmentMainComponent implements OnInit {
     })
   }
 
+  /**
+   * Fiter out Sunday option
+   * @param d 
+   */
   dateFilter(d: Date | null): boolean {
     const day = (d || new Date()).getDay();
     return day !== 0;
   }
 
+  /**
+   * Generate a list of times available for booking
+   * @param event 
+   */
   generateTimeList(event: MatDatepickerInputEvent<Date>): void {
     this.timeList = null;
     this.slotsAvailable = null;
     this.success = false;
     this.httpService.getAvailableBookings().subscribe((res: any[]) => {
-      let bookings = res;
+      let bookings = res; // get bookings from db
       let bookingsMapping = new Map();
       bookings.forEach(each => {
         if (bookingsMapping.has(new Date(each.time).toString())) {
@@ -62,7 +72,7 @@ export class AppointmentMainComponent implements OnInit {
         else {
           bookingsMapping.set(new Date(each.time).toString(), 1);
         }
-      })
+      }); // create a Map object to get the count of each booking
       let allTimeSlots = this.generateTimeListService.generateTimeListService(event.value).map(each => {
         if (bookingsMapping.has(new Date(each.time).toString())) {
           const count = bookingsMapping.get(new Date(each.time).toString());
@@ -75,7 +85,7 @@ export class AppointmentMainComponent implements OnInit {
         else {
           return each;
         }
-      })
+      }); // subtract the unavailable slots of each booking
 
       allTimeSlots = allTimeSlots.filter(each => {
         return each.numberOfSlots != 0;
@@ -84,10 +94,17 @@ export class AppointmentMainComponent implements OnInit {
     });
   }
 
-  selectedDate(value) {
+  /**
+   * Extract the number of slots from the time slot object
+   * @param value 
+   */
+  getNumberOfSlots(value) {
     this.slotsAvailable = value.numberOfSlots;
   }
 
+  /**
+   * Handler for the form when it is being submitted
+   */
   onSubmit() {
     const time = {
       time: this.myForm.get('time').value.time
@@ -97,6 +114,7 @@ export class AppointmentMainComponent implements OnInit {
       this.timeList = null;
       this.slotsAvailable = null;
       this.myForm.reset();
+      this.userBookingId = res['id'];
     })
   }
 }

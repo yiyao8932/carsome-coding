@@ -14,7 +14,7 @@
     <div *ngIf="timeList">
       <mat-form-field>
         <mat-label>Select time</mat-label>
-        <mat-select formControlName="time" (valueChange)="selectedDate($event)">
+        <mat-select formControlName="time" (valueChange)="getNumberOfSlots($event)">
           <mat-option *ngFor="let t of timeList" [value]="t">
             {{t.time | date: 'shortTime'}}
           </mat-option>
@@ -22,7 +22,7 @@
       </mat-form-field>
       <p style="color: red" *ngIf="slotsAvailable">{{slotsAvailable}} {{slotsAvailable < 2 ? 'slot' : 'slots'}} available</p>
     </div>
-    <p style="color: red" *ngIf="success">Submitted successfully</p>
     <button mat-raised-button color="primary" type="submit">Confirm your booking</button>
   </form>
+  <p style="color: red; padding-top: 10px;" *ngIf="success">Your booking is submitted! Your booking number is: {{userBookingId}}</p>
 </div>
