@@ -12,7 +12,7 @@
     "serve:ssr": "node dist/carsome-coding/server/main.js",
     "build:ssr": "ng build --prod && ng run carsome-coding:server:production",
     "prerender": "ng run carsome-coding:prerender",
-    "start:heroku": "node dist/server",
+    "start:heroku": "npm run serve:ssr",
     "postinstall": "npm run build:ssr"
   },
   "private": true,
