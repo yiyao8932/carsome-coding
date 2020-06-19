@@ -22,6 +22,7 @@ export class AppointmentMainComponent implements OnInit {
   MAX_MINUTE = 30;
 
   timeList: AvailableTimeSlot[];
+  timeListLoading: boolean = false;
 
   slotsAvailable;
 
@@ -61,9 +62,12 @@ export class AppointmentMainComponent implements OnInit {
     this.timeList = null;
     this.slotsAvailable = null;
     this.success = false;
+    this.timeListLoading = true;
+
     this.httpService.getAvailableBookings().subscribe((res: any[]) => {
       let bookings = res; // get bookings from db
       let bookingsMapping = new Map();
+
       bookings.forEach(each => {
         if (bookingsMapping.has(new Date(each.time).toString())) {
           const temp = bookingsMapping.get(new Date(each.time).toString());
@@ -73,6 +77,7 @@ export class AppointmentMainComponent implements OnInit {
           bookingsMapping.set(new Date(each.time).toString(), 1);
         }
       }); // create a Map object to get the count of each booking
+
       let allTimeSlots = this.generateTimeListService.generateTimeListService(event.value).map(each => {
         if (bookingsMapping.has(new Date(each.time).toString())) {
           const count = bookingsMapping.get(new Date(each.time).toString());
@@ -85,12 +90,15 @@ export class AppointmentMainComponent implements OnInit {
         else {
           return each;
         }
+      
       }); // subtract the unavailable slots of each booking
 
       allTimeSlots = allTimeSlots.filter(each => {
         return each.numberOfSlots != 0;
       });
+      
       this.timeList = allTimeSlots;
+      this.timeListLoading = false;
     });
   }
 

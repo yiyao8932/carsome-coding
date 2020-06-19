@@ -10,7 +10,9 @@
         <mat-datepicker #picker></mat-datepicker>
       </mat-form-field>
     </div>
-
+    <div *ngIf="timeListLoading">
+      <mat-spinner style="margin:0 auto; margin-bottom: 20px;"></mat-spinner>
+    </div>
     <div *ngIf="timeList">
       <mat-form-field>
         <mat-label>Select time</mat-label>
